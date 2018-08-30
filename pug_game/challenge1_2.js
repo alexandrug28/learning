@@ -1,4 +1,15 @@
-var scores, roundScores, activePlayer, gamePlaying, winScore;
+ /*
+GAME RULES:
+
+- The game has 2 players, playing in rounds
+- In each turn, a player rolls a dice as many times as he whishes. Each result get added to his ROUND score
+- BUT, if the player rolls a 1, all his ROUND score gets lost. After that, it's the next player's turn
+- The player can choose to 'Hold', which means that his ROUND score gets added to his GLBAL score. After that, it's the next player's turn
+- The first player to reach 100 points on GLOBAL score wins the game
+
+*/
+
+var scores, roundScores, activePlayer, gamePlaying, oldDice, winScore;
 
 init();
 
@@ -10,25 +21,27 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
         
         //1. random number
         
-        var dice0 = Math.floor(Math.random() * 6 + 1);
-        var dice1 = Math.floor(Math.random() * 6 + 1);
+        var dice = Math.floor(Math.random() * 6 + 1);
         
         //2. display result
-        var diceDOM0 = document.querySelector('.dice0');
-        var diceDOM1 = document.querySelector('.dice1');
+        var diceDOM = document.querySelector('.dice');
         // change dice image
-        diceDOM0.style.display = 'block'; 
-        diceDOM0.src = 'dice-' + dice0 + '.png';
-        
-        diceDOM1.style.display = 'block';
-        diceDOM1.src = 'dice-' + dice1 + '.png';
-        
+        diceDOM.style.display = 'block'; 
+        diceDOM.src = 'dice-' + dice + '.png'; 
     
         //3. update the round score only IF the rolled number was not a 1
-        if (dice0 !== 1 && dice1 !== 1) {
+        if (dice !== 1) {
+            //check if rolled 6 two times in a row
+            if (dice === 6 && oldDice === 6) {
+                console.log('you roled two sixes');
+                scores[activePlayer] = 0;
+                nextPlayer();
+            } else {
             // add score
-                roundScore += dice0 + dice1;
+                roundScore += dice;
                 document.querySelector('#current-' + activePlayer).textContent = roundScore;
+                oldDice = dice; //remember previous dice
+            }
         } else {
         // next player
         nextPlayer();
@@ -51,8 +64,7 @@ document.querySelector('.btn-hold').addEventListener('click', function () {
     // 3. check if player won the game
     if (scores[activePlayer] >= winScore) {
         document.getElementById('name-' + activePlayer).textContent = 'WINNER!';
-        document.querySelector('.dice0').style.display = 'none';
-        document.querySelector('.dice1').style.display = 'none';
+        document.querySelector('.dice').style.display = 'none';
         document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner');
         document.querySelector('.player-' + activePlayer + '-panel').classList.remove('active');
         gamePlaying = false;
@@ -72,9 +84,8 @@ function init() {
     activePlayer = 0;
     
     document.getElementById("input-score").disabled = false;
-    document.querySelector('.dice0').style.display = 'none';
-    document.querySelector('.dice1').style.display = 'none';
-    
+    document.querySelector('.dice').style.display = 'none';
+
     document.getElementById('score-0').textContent = '0'; // element by id select only id, faster than querry
     document.getElementById('score-1').textContent = '0';
 
@@ -107,8 +118,7 @@ function nextPlayer() {
         //document.querySelector('.player-0-panel').classList.remove('active'); 
         //document.querySelector('.player-1-panel').classList.add('active');
         
-    document.querySelector('.dice0').style.display = 'none';
-    document.querySelector('.dice1').style.display = 'none';
+    document.querySelector('.dice').style.display = 'none';
 }
 
 
